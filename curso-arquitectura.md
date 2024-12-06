@@ -157,7 +157,15 @@ Transferencia externa: Transferencia entre registros internos del procesador y m
 
 Estas microoperaciones permiten a la UC ejecutar las instrucciones, acceder a los operandos y coordinar el funcionamiento del procesador.
 
+que es un programa? 
+una secuencia de pasos
+para cada paso, se realiza una operacion logica o matematica
+para cada operacion, se necesita un set de señales de control diferente
 
+la cpu, genera las direcciones mientras que la memoria las recibe
+
+el usuario escribe un programa en lenguaje de alto nivel, el cual se traduce a un lenguaje ensamblador pode medio de un compilador
+un programa ensamblador convierte el programa en lenguaje simbolico o lenguaje de maquina
 
 
   
