@@ -1,0 +1,80 @@
+Computer Architecture: 
+Von Neumann Architecture, x
+Instruction Cycle, x
+CISC vs RISC, x
+Pipelining 
+
+
+Introduction to Operating Systems: 
+OS Structures, 
+Processes, 
+Threads, 
+CPU Scheduling. 
+
+Advanced Operating Systems Concepts: 
+Memory Management, 
+Virtual Memory, 
+File Systems. 
+
+Computer Networks: 
+Network Models, x
+TCP/IP Protocol, 
+Ethernet, x
+Wireless Networks, 
+Internet 
+Routing x
+
+
+
+Computer Architecture: 
+Von Neumann Architecture, 
+Instruction Cycle, 
+CISC vs RISC, 
+Pipelining 
+
+Introduction to Operating Systems: 
+OS Structures, x
+Processes, x
+Threads, x
+CPU Scheduling. x
+
+Advanced Operating Systems Concepts: 
+Memory Management, x
+Virtual Memory, x
+File Systems. x
+
+Computer Networks: 
+Network Models, 
+TCP/IP Protocol, 
+Ethernet, 
+Wireless Networks, 
+Internet 
+Routing
+
+
+
+
+Computer Architecture: 
+Von Neumann Architecture, x
+Instruction Cycle, x
+CISC vs RISC, x
+Pipelining 
+
+Introduction to Operating Systems: 
+OS Structures, x
+Processes, x
+Threads, x
+CPU Scheduling. x
+
+Advanced Operating Systems Concepts: 
+Memory Management, x
+Virtual Memory, x
+File Systems. 
+
+Computer Networks: 
+Network Models, 
+TCP/IP Protocol, 
+Ethernet, 
+Wireless Networks, 
+Internet 
+Routing
