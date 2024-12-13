@@ -13,60 +13,54 @@
 #define MAX_CLIENTS 10
 
 int client_sockets[MAX_CLIENTS];
-pthread_mutex_t clients_mutex = PTHREAD_MUTEX_INITIALIZER;
+int client_count = 0;
 
-void error(const char *msg) {
+void error(const char *msg) { // manejo de errores
     perror(msg);
     exit(1);
 }
 
 void add_client(int client_socket) {
-	pthread_mutex_lock(&clients_mutex);
 	for (int i = 0; i < MAX_CLIENTS; i++) {
 		if (client_sockets[i] == 0) {
-			client_sockets[i] = client_socket;
+			client_sockets[i] = client_socket; // se busca un socket libre para agregar al cliente en ese socket
+            client_count++;
 			break;
 		}
 	}
-	pthread_mutex_unlock(&clients_mutex);
 }
 
 void remove_client(int client_socket) {
-	pthread_mutex_lock(&clients_mutex);
 	for (int i = 0; i < MAX_CLIENTS; i++) {
 		if (client_sockets[i] == client_socket) {
-			client_sockets[i] = 0;
+			client_sockets[i] = 0; // se busca el socket del cliente a desconectar y se borra
+            client_count--;
 			break;
 		}
 	}
-	pthread_mutex_unlock(&clients_mutex);
 }
 
 void send_to_all_clients(int sender_sock, const char *message) {
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (client_sockets[i] != 0 && client_sockets[i] != sender_sock) {
-            if (write(client_sockets[i], message, strlen(message)) < 0) {
+            if (write(client_sockets[i], message, strlen(message)) < 0) { // se envia del servidor a todos los sockets que hay agregados, el mensaje del cliente que lo mando 
                 perror("Error al enviar mensaje a cliente");
             }
         }
     }
 }
 
-void *handle_client(void *newsockfd_ptr) {
-    int newsockfd = *(int *)newsockfd_ptr;
-    free(newsockfd_ptr);
-    char buffer[BUFFER_SIZE];
-    char name[BUFFER_SIZE];
+void handle_client(int *newsockfd_ptr) {
+    int newsockfd = *(int *)newsockfd_ptr; // se crea un nuevo socket para el nuevo cliente
+    free(newsockfd_ptr);  // se libera el espacio del socket
+    char buffer[BUFFER_SIZE]; // buffer para mensajes
+    struct sockaddr cli_addr;
+    socklen_t cli_len = sizeof(cli_addr);
+    getpeername(newsockfd, &cli_addr, &cli_len); // se obtiene la direccion del cliente
+    char ip[INET_ADDRSTRLEN];
     int n;
 
-    // Leer el nombre del cliente
-    bzero(name, BUFFER_SIZE);
-    n = read(newsockfd, name, BUFFER_SIZE - 1);
-    if (n < 0) 
-        error("Error al leer del socket");
-    name[strcspn(name, "\n")] = 0;
-
-    printf("Cliente conectado e identificado como: %s\n", name);
+    printf("Cliente conectado e identificado como: %s\n", ip);
 
     add_client(newsockfd);
 
@@ -79,17 +73,16 @@ void *handle_client(void *newsockfd_ptr) {
         if (n == 0) {
             break;
         }
-        printf("Cliente %s: %s", name, buffer);
+        printf("Cliente %s: %s", ip, buffer);
 
-        // Reenviar el mensaje a todos los clientes
         char message[BUFFER_SIZE + BUFFER_SIZE];
-        snprintf(message, sizeof(message), "%s: %s", name, buffer);
+        snprintf(message, sizeof(message), "%s: %s", ip, buffer);
         send_to_all_clients(newsockfd, message);
     }
 
     close(newsockfd);
     remove_client(newsockfd);
-    printf("Cliente desconectado: %s\n", name);
+    printf("Cliente desconectado: %s\n", ip);
 }
 
 int main() {
@@ -111,24 +104,22 @@ int main() {
         error("Error al hacer bind");
     }
 
-    listen(sockfd, 5);
+    listen(sockfd, MAX_CLIENTS );
     clilen = sizeof(cli_addr);
 
     printf("Servidor escuchando en el puerto: %d\n", PORT);
 
-    // Inicializar la lista de sockets de clientes
     bzero(client_sockets, sizeof(client_sockets));
 
     while (1) {
         newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-        if (newsockfd < 0) {
+        if (newsockfd < 0 || client_count == MAX_CLIENTS) {
             error("Error al aceptar la conexión");
         }
         pthread_t thread;
         int *newsockfd_ptr = malloc(sizeof(int));
         *newsockfd_ptr = newsockfd;
         pthread_create(&thread, NULL, handle_client, newsockfd_ptr);
-        pthread_detach(thread);
     }
 
     close(sockfd);

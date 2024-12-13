@@ -10,7 +10,7 @@
 
 #define PORT 8080
 #define BUFFER_SIZE 256
-#define DIR_IP "192.168.1.139"
+#define DIR_IP "192.168.1.166"
 
 void error(const char *msg) {
     perror(msg);
@@ -54,15 +54,6 @@ int main() {
 
     if (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
         error("Error al conectar");
-    }
-
-    printf("Conectado al servidor. Porfavor, escoge tu nombre:\n");
-    char name[BUFFER_SIZE];
-    bzero(name, BUFFER_SIZE);
-    fgets(name, BUFFER_SIZE, stdin);
-    n = write(sockfd, name, strlen(name));
-    if (n < 0) {
-        error("Error al escribir en el socket");
     }
 
     pthread_t thread;
