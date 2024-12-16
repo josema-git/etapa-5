@@ -514,9 +514,3 @@ Imaginemos una empresa con oficinas en tres ciudades conectadas por enlaces de f
   Permite que enlaces adicionales estén disponibles como respaldo en caso de fallos.  
 - **Interoperabilidad:**  
   Compatible con la mayoría de los dispositivos de red modernos.  
-
-
-
-
-
-  ![ipv4 packet](image.png)

@@ -6,10 +6,10 @@ Pipelining
 
 
 Introduction to Operating Systems: 
-OS Structures, 
-Processes, 
-Threads, 
-CPU Scheduling. 
+OS Structures, x
+Processes, x
+Threads, x
+CPU Scheduling. x
 
 Advanced Operating Systems Concepts: 
 Memory Management, 
@@ -78,3 +78,5 @@ Ethernet,
 Wireless Networks, 
 Internet 
 Routing
+
+
