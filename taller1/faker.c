@@ -4,30 +4,19 @@
 #include <libnet.h>
 #include <net/ethernet.h>
 
-#define SRC_MAC "\xA0\x36\xBC\xAA\x81\xD3"
+#define SRC_MAC "\xA0\x36\xBC\xAA\x82\xbc"
+#define SRC_IP "192.168.1.139"
+
 #define DST_MAC "\xA0\x36\xBC\xAA\x88\x49"
-#define SRC_IP "192.168.1.144"
 #define DST_IP "192.168.1.166"
-#define MESSAGE "hola, soy jairo\n"
-#define DST_PORT 8080
+#define DST_PORT 9000
 
-#define SRC_PORT 53956
-#define SEQ 0x283abc76 + 5 
-#define ACK 0x55547c21
-#define ID 0x46e5 +1
+#define MESSAGE "yo si\n"
 
-void analize_packet(char* hex){
-    const int ID_POS = 36;         // Posición del ID (2 bytes)
-    const int PORT_POS = 68;       // Posición del puerto (2 bytes)
-    const int SEQ_POS = 76;        // Posición del sequence number (4 bytes)
-    const int ACK_POS = 84;        // Posición del ACK number (4 bytes)
-
-    // Extraer valores
-    uint16_t id = hex_to_num(hex + ID_POS, 4);
-    uint16_t port = hex_to_num(hex + PORT_POS, 4);
-    uint32_t seq = hex_to_num(hex + SEQ_POS, 8);
-    uint32_t ack = hex_to_num(hex + ACK_POS, 8);
-}
+#define SRC_PORT 36964  
+#define SEQ 0x39fddf85 + 38
+#define ACK 0x69c622d8
+#define ID 0x2064 +2
 
 int main() {
     libnet_t *l;
@@ -36,7 +25,7 @@ int main() {
     l = libnet_init(LIBNET_LINK, NULL, errbuf);
     if (l == NULL) {
         fprintf(stderr, "libnet_init() failed: %s\n", errbuf);
-        exit(EXIT_FAILURE);
+        exit(1);
     }
 
     u_int32_t src_ip = libnet_name2addr4(l, SRC_IP, LIBNET_RESOLVE);
@@ -61,7 +50,7 @@ int main() {
     if (tcp == -1) {
         fprintf(stderr, "Error building TCP header: %s\n", libnet_geterror(l));
         libnet_destroy(l);
-        exit(EXIT_FAILURE);
+        exit(1);
     }
 
     libnet_ptag_t ip = libnet_build_ipv4(
@@ -83,7 +72,7 @@ int main() {
     if (ip == -1) {
         fprintf(stderr, "Error building IP header: %s\n", libnet_geterror(l));
         libnet_destroy(l);
-        exit(EXIT_FAILURE);
+        exit(1);
     }
 
     libnet_ptag_t eth = libnet_build_ethernet(
@@ -99,10 +88,9 @@ int main() {
     if (eth == -1) {
         fprintf(stderr, "Error building Ethernet header: %s\n", libnet_geterror(l));
         libnet_destroy(l);
-        exit(EXIT_FAILURE);
+        exit(1);
     }
 
-    // Enviar paquete con datos
     int bytes_written = libnet_write(l);
     if (bytes_written == -1) {
         fprintf(stderr, "Error sending packet: %s\n", libnet_geterror(l));

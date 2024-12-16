@@ -8,12 +8,15 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 
-#define PORT 8080
+#define PORT 9000
 #define BUFFER_SIZE 256
 #define MAX_CLIENTS 10
 
 int client_sockets[MAX_CLIENTS];
+pthread_mutex_t client_mutex = PTHREAD_MUTEX_INITIALIZER;
 int client_count = 0;
+
+
 
 void error(const char *msg) { // manejo de errores
     perror(msg);
@@ -21,6 +24,7 @@ void error(const char *msg) { // manejo de errores
 }
 
 void add_client(int client_socket) {
+    pthread_mutex_lock(&client_mutex); 
 	for (int i = 0; i < MAX_CLIENTS; i++) {
 		if (client_sockets[i] == 0) {
 			client_sockets[i] = client_socket; // se busca un socket libre para agregar al cliente en ese socket
@@ -28,9 +32,11 @@ void add_client(int client_socket) {
 			break;
 		}
 	}
+    pthread_mutex_unlock(&client_mutex);
 }
 
 void remove_client(int client_socket) {
+    pthread_mutex_lock(&client_mutex); 
 	for (int i = 0; i < MAX_CLIENTS; i++) {
 		if (client_sockets[i] == client_socket) {
 			client_sockets[i] = 0; // se busca el socket del cliente a desconectar y se borra
@@ -38,6 +44,7 @@ void remove_client(int client_socket) {
 			break;
 		}
 	}
+    pthread_mutex_unlock(&client_mutex);
 }
 
 void send_to_all_clients(int sender_sock, const char *message) {
@@ -58,9 +65,10 @@ void handle_client(int *newsockfd_ptr) {
     socklen_t cli_len = sizeof(cli_addr);
     getpeername(newsockfd, &cli_addr, &cli_len); // se obtiene la direccion del cliente
     char ip[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &((struct sockaddr_in *)&cli_addr)->sin_addr, ip, INET_ADDRSTRLEN); // convierte la direccion IP a una cadena legible
     int n;
 
-    printf("Cliente conectado e identificado como: %s\n", ip);
+    printf("Cliente con ip %s conectado\n", ip);
 
     add_client(newsockfd);
 
@@ -73,7 +81,7 @@ void handle_client(int *newsockfd_ptr) {
         if (n == 0) {
             break;
         }
-        printf("Cliente %s: %s", ip, buffer);
+        printf("%s: %s", ip, buffer);
 
         char message[BUFFER_SIZE + BUFFER_SIZE];
         snprintf(message, sizeof(message), "%s: %s", ip, buffer);

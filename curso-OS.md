@@ -1262,3 +1262,114 @@ El problema de **lectores-escritores** surge cuando múltiples procesos necesita
      - Los escritores tienen acceso exclusivo y prioridad sobre los lectores.
    - Implementación con mensajes:
      - Buzones gestionan las solicitudes de lectura y escritura, priorizando a los escritores.
+
+# **Interbloqueo**
+
+## **1. Introducción al Interbloqueo**
+
+### **¿Qué es un interbloqueo?**
+Un **interbloqueo** ocurre cuando un grupo de procesos está esperando recursos que están retenidos por otros procesos del mismo grupo, lo que genera un bloqueo permanente. Ningún proceso puede avanzar, y el sistema queda en un estado de espera indefinida.
+
+### **Ejemplos ilustrativos:**
+1. **Tráfico vehicular:**
+   - Imagina una intersección donde varios vehículos ocupan carriles críticos y esperan que otros se muevan para avanzar. Si todos esperan, ninguno puede moverse, lo que causa un interbloqueo.
+2. **Asignación de memoria:**
+   - Dos procesos compiten por bloques de memoria. Si uno solicita más memoria mientras el otro retiene la que necesita, ambos quedan bloqueados esperando al otro.
+
+### **Recursos en los sistemas operativos:**
+- **Recursos reutilizables:** No se consumen al usarse (ejemplo: memoria, CPU).
+- **Recursos consumibles:** Se consumen al usarse (ejemplo: señales, mensajes).
+
+---
+
+## **2. Condiciones Necesarias para el Interbloqueo**
+
+Para que ocurra un interbloqueo, deben cumplirse estas cuatro condiciones simultáneamente:
+
+1. **Exclusión mutua:**
+   - Solo un proceso puede usar un recurso a la vez.
+   - Ejemplo: Un archivo abierto por un proceso no puede ser modificado por otro hasta que se libere.
+
+2. **Retención y espera (Hold and Wait):**
+   - Un proceso retiene un recurso mientras espera otro.
+   - Ejemplo: Un proceso utiliza memoria pero espera acceso a la impresora.
+
+3. **No expropiación (No Preemption):**
+   - Los recursos no pueden ser forzados a liberarse; solo el proceso que los posee puede liberarlos.
+   - Ejemplo: Un proceso no puede ser interrumpido para liberar memoria.
+
+4. **Espera circular (Circular Wait):**
+   - Existe un ciclo cerrado de procesos, donde cada uno espera un recurso que está siendo retenido por el siguiente.
+   - Ejemplo: Proceso A espera un recurso que tiene el proceso B, que a su vez espera un recurso retenido por el proceso A.
+
+### **Ejemplo práctico:**
+- Dos autos en una intersección representan un ciclo cerrado: ambos esperan que el otro avance para liberar el camino, pero ninguno puede moverse.
+
+---
+
+## **3. Prevención del Interbloqueo**
+
+La prevención consiste en evitar que al menos una de las condiciones necesarias para el interbloqueo ocurra. Estrategias comunes incluyen:
+
+1. **Eliminar la exclusión mutua:**
+   - Hacer que los recursos sean compartibles siempre que sea posible.
+   - Ejemplo: Permitir acceso concurrente a archivos solo para lectura.
+
+2. **Evitar la retención y espera:**
+   - Obligar a los procesos a solicitar todos los recursos que necesitan al inicio.
+   - Problema: Puede haber desperdicio de recursos si un proceso no los utiliza de inmediato.
+
+3. **Permitir la expropiación:**
+   - Si un proceso que retiene recursos no puede continuar, se le quitan los recursos y se asignan a otro proceso.
+   - Ejemplo: Interrumpir un proceso para liberar memoria.
+
+4. **Evitar la espera circular:**
+   - Asignar un orden lineal a los recursos y exigir que los procesos los soliciten en ese orden.
+   - Ejemplo: Si un proceso necesita memoria y CPU, debe solicitar primero la memoria y luego la CPU.
+
+---
+
+## **4. Algoritmo del Banquero**
+
+El **algoritmo del banquero**, propuesto por Dijkstra, es una técnica para evitar interbloqueos al gestionar la asignación de recursos de manera segura. Se basa en simular un sistema bancario donde los clientes (procesos) solicitan préstamos (recursos) y el banco (sistema) verifica si puede satisfacer las solicitudes sin quedar en un estado inseguro.
+
+### **Funcionamiento:**
+1. **Declaración de necesidades máximas:**
+   - Cada proceso declara la cantidad máxima de recursos que necesitará durante su ejecución.
+
+2. **Cálculo de recursos disponibles:**
+   - El sistema verifica si puede satisfacer las solicitudes actuales de los procesos sin comprometer su estabilidad.
+
+3. **Estado seguro:**
+   - El sistema está en un estado seguro si puede garantizar que al menos un proceso pueda completar su ejecución, liberar sus recursos y permitir que los demás progresen.
+
+4. **Estado inseguro:**
+   - Si no se puede garantizar que al menos un proceso complete su ejecución, el sistema está en un estado inseguro y podría ocurrir un interbloqueo.
+
+### **Ejemplo práctico:**
+- Un banco tiene 12 millones de dólares y cuatro inversores. Cada inversor solicita una cantidad diferente de dinero. El algoritmo verifica si puede satisfacer las solicitudes sin quedarse sin fondos para otros inversores.
+
+---
+
+## **5. Problema de los Filósofos Comensales**
+
+El **problema de los filósofos comensales** es una metáfora clásica para ilustrar los problemas de sincronización y los interbloqueos.
+
+### **Escenario:**
+- Cinco filósofos están sentados alrededor de una mesa con cinco tenedores. Cada filósofo necesita dos tenedores para comer.
+- Si todos intentan tomar el tenedor de su izquierda al mismo tiempo, ninguno podrá tomar el tenedor de su derecha, lo que genera un interbloqueo.
+
+### **Soluciones al problema:**
+1. **Controlar el acceso:**
+   - Usar un semáforo para limitar el número de filósofos que pueden sentarse a la mesa al mismo tiempo.
+   - Ejemplo: Permitir que solo cuatro filósofos accedan a los tenedores simultáneamente.
+
+2. **Ordenar los recursos:**
+   - Asignar un orden a los tenedores y exigir que los filósofos los tomen en ese orden.
+   - Ejemplo: Tomar primero el tenedor con el número más bajo.
+
+3. **Evitar la espera circular:**
+   - Hacer que un filósofo tome ambos tenedores al mismo tiempo o ninguno.
+
+4. **Introducir un "sirviente":**
+   - Un proceso centralizado (sirviente) controla quién puede tomar los tenedores y cuándo.

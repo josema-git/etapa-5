@@ -8,7 +8,7 @@
 #include <netdb.h>
 #include <pthread.h>
 
-#define PORT 8080
+#define PORT 9000
 #define BUFFER_SIZE 256
 #define DIR_IP "192.168.1.166"
 
