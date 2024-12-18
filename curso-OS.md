@@ -1373,3 +1373,191 @@ El **problema de los filósofos comensales** es una metáfora clásica para ilus
 
 4. **Introducir un "sirviente":**
    - Un proceso centralizado (sirviente) controla quién puede tomar los tenedores y cuándo.
+
+
+# **Gestión de Memoria en Sistemas Operativos**
+
+## **1. Introducción a la Gestión de Memoria**
+
+### **¿Qué es la gestión de memoria?**
+La gestión de memoria se refiere a cómo el sistema operativo administra la memoria principal (RAM) para cargar y ejecutar programas. Incluye:
+- **Espacio de direcciones lógicas vs. físicas:**
+  - **Lógicas:** Direcciones generadas por el programa y visibles para el usuario.
+  - **Físicas:** Direcciones reales en la memoria principal, gestionadas por el hardware.
+- **Etapas del programa antes de la ejecución:**
+  - Un programa pasa por fases de compilación, carga y ejecución; en cada etapa se asignan direcciones de memoria.
+
+### **Asignación de direcciones:**
+1. **En tiempo de compilación:** Las direcciones absolutas son conocidas durante la compilación.
+2. **En tiempo de carga:** Las direcciones son calculadas cuando el programa es cargado en memoria.
+3. **En tiempo de ejecución:** Se utilizan direcciones relocatables, que requieren hardware adicional para la traducción.
+
+---
+
+## **2. Direcciones Lógicas y Físicas**
+
+### **Traducción de direcciones:**
+- Las direcciones lógicas son traducidas a físicas mediante la **Unidad de Gestión de Memoria (MMU)**.
+- **Registro de reubicación:** Suma un valor a cada dirección lógica para obtener la dirección física.
+
+### **Memoria virtual:**
+- Permite que el espacio de direcciones lógicas sea mayor que la memoria física disponible.
+- Ejemplo: Una computadora con 16 GB de memoria física puede tener 32 GB de memoria virtual.
+
+---
+
+## **3. Intercambio (Swapping)**
+
+El **intercambio** permite mover temporalmente procesos de la memoria principal al almacenamiento secundario (disco) para liberar espacio.
+
+### **Características del intercambio:**
+- Un proceso puede ser movido al disco y luego devuelto a la memoria para continuar su ejecución.
+- Es necesario ajustar las direcciones de memoria cuando el proceso regresa a un lugar diferente en la memoria.
+
+### **Ventajas:**
+- Permite que otros procesos utilicen la memoria liberada.
+- Mejora la utilización de la memoria en sistemas multitarea.
+
+---
+
+## **4. Asignación Contigua de Memoria**
+
+### **¿Qué es la asignación contigua?**
+- La memoria se divide en **particiones contiguas**, cada una asignada a un proceso.
+- Se utilizan registros base y límite para definir los límites de cada partición.
+
+### **Fragmentación:**
+1. **Externa:** Espacios libres entre particiones no contiguas.
+2. **Interna:** Espacio desperdiciado dentro de una partición asignada.
+
+### **Algoritmos de asignación:**
+1. **First Fit:** Asigna el primer bloque libre que sea lo suficientemente grande.
+2. **Best Fit:** Busca el bloque más pequeño que pueda acomodar el proceso.
+3. **Worst Fit:** Busca el bloque más grande disponible.
+
+### **Compacción:**
+- Técnica para reducir la fragmentación externa consolidando los bloques libres en uno solo.
+
+---
+
+## **5. Paginación**
+
+La **paginación** divide la memoria física en bloques de tamaño fijo llamados **marcos** y los procesos en bloques del mismo tamaño llamados **páginas**.
+
+### **Ventajas:**
+- Elimina la fragmentación externa.
+- Permite que las páginas de un proceso se carguen en cualquier marco disponible.
+
+### **Traducción de direcciones:**
+1. La dirección lógica se divide en:
+   - **Número de página:** Índice en la tabla de páginas.
+   - **Desplazamiento:** Ubicación dentro de la página.
+2. La **tabla de páginas** traduce el número de página al marco correspondiente en la memoria física.
+
+### **Problemas:**
+- **Fragmentación interna:** Espacio desperdiciado dentro de las páginas.
+- **Accesos múltiples a memoria:** La traducción requiere acceder a la tabla de páginas y luego a la memoria.
+
+### **Optimización:**
+- Uso de **TLB (Translation Lookaside Buffer):** Una caché de hardware que almacena las traducciones recientes para acelerar el acceso.
+
+---
+
+## **6. Segmentación**
+
+La **segmentación** divide la memoria en segmentos de tamaño variable, cada uno representando una unidad lógica del programa (por ejemplo, código, datos, pila).
+
+### **Características:**
+- Visible para los programadores.
+- Cada segmento tiene un tamaño y una dirección base definidos en una tabla de segmentos.
+
+### **Traducción de direcciones:**
+1. La dirección lógica incluye:
+   - **Número de segmento.**
+   - **Desplazamiento dentro del segmento.**
+2. El sistema verifica que el desplazamiento no exceda el tamaño del segmento.
+
+### **Ventajas:**
+- Permite permisos específicos por segmento (lectura, escritura, ejecución).
+- Facilita la compartición de segmentos entre procesos.
+
+### **Problemas:**
+- **Fragmentación externa:** Espacio libre entre segmentos no contiguos.
+
+---
+
+## **7. Segmentación Combinada con Paginación**
+
+Esta técnica combina las ventajas de la segmentación y la paginación para resolver problemas como la fragmentación externa.
+
+### **Funcionamiento:**
+1. Cada segmento se divide en páginas.
+2. La dirección lógica incluye:
+   - **Número de segmento.**
+   - **Número de página dentro del segmento.**
+   - **Desplazamiento dentro de la página.**
+3. Se utilizan tablas de segmentos y tablas de páginas para la traducción de direcciones.
+
+### **Ventajas:**
+- Reduce la fragmentación externa.
+- Permite una gestión más flexible y eficiente de la memoria.
+
+### **Implementación en sistemas Intel:**
+- Utilizan paginación de dos niveles para manejar grandes espacios de direcciones.
+
+---
+
+## **Resumen de Conceptos Clave**
+
+1. **Direcciones lógicas vs. físicas:**
+   - Las direcciones lógicas son traducidas a físicas mediante la MMU.
+
+2. **Intercambio:** 
+   - Permite mover procesos al disco para liberar memoria.
+
+3. **Asignación contigua:**
+   - Divide la memoria en particiones contiguas, pero sufre de fragmentación.
+
+4. **Paginación:**
+   - Divide la memoria en marcos y las aplicaciones en páginas, eliminando la fragmentación externa.
+
+5. **Segmentación:**
+   - Divide la memoria en segmentos lógicos, visibles para el programador.
+
+6. **Segmentación combinada con paginación:**
+   - Combina ambas técnicas para aprovechar sus ventajas y minimizar sus problemas.
+
+The video explains demand paging in virtual memory, detailing how pages are loaded only when needed, handling page faults, and optimizing performance through page replacement and access time calculations.
+Detailed Summary for [Sistemas Operativos, Memoria virtual 2 paginación por demanda](https://www.youtube.com/watch?v=7eL1mVRBvtE&list=PLJbyYK99gf2X2tkRPsck0Ar8RVVuHnDLp&index=82) by [Monica](https://monica.im)
+
+  [00:00](https://www.youtube.com/watch?v=7eL1mVRBvtE&list=PLJbyYK99gf2X2tkRPsck0Ar8RVVuHnDLp&index=82&t=0.359) This section discusses the concept of demand paging in virtual memory systems, emphasizing how it optimizes memory usage by only loading necessary pages into memory as needed.
+  - Introduction to demand paging and its significance in memory management.}
+- Explanation of how pages are loaded into memory only when required, reducing unnecessary memory usage.}
+- Benefits of demand paging, including faster response times and the ability to support more processes in shared environments.}
+- Details on how page tables function, including the presence bit indicating whether a page is currently in memory.}
+- Description of what happens during address translation when a page fault occurs, necessitating the loading of a page into memory.}
+      
+[02:44](https://www.youtube.com/watch?v=7eL1mVRBvtE&list=PLJbyYK99gf2X2tkRPsck0Ar8RVVuHnDLp&index=82&t=164.7) This section explains the concept of demand paging in operating systems, detailing what happens when a page fault occurs and how the system handles it to retrieve the necessary data from secondary storage into main memory.
+  - Introduction to page faults and their occurrence when accessing a page not present in main memory.}
+- Explanation of the exception triggered by a page fault and the system's response to handle it.}
+- The process of bringing the required page into main memory and updating the page table accordingly.}
+- Discussion on scenarios when all memory frames are occupied and the need for page replacement.}
+      
+[05:32](https://www.youtube.com/watch?v=7eL1mVRBvtE&list=PLJbyYK99gf2X2tkRPsck0Ar8RVVuHnDLp&index=82&t=332.54) The section explains the process of page replacement in virtual memory management, detailing how pages are swapped between primary and secondary memory to optimize memory usage.
+  - Introduction to the need for page replacement when memory is full.}
+- Explanation of how to identify an unused page in memory for replacement.}
+- Description of the page replacement process, including the transfer of pages between primary and secondary memory.}
+- Discussion on the impact of frequent page swapping on system performance due to slower access times in secondary memory.}
+      
+[08:19](https://www.youtube.com/watch?v=7eL1mVRBvtE&list=PLJbyYK99gf2X2tkRPsck0Ar8RVVuHnDLp&index=82&t=499.6) The video discusses virtual memory management, specifically focusing on demand paging and page replacement strategies. It uses an analogy of organizing a closet to explain how less frequently used pages are removed from memory to make space for active ones.
+  - Introduction to the concept of page replacement in memory management.}
+- An analogy comparing memory management to organizing a closet, emphasizing the removal of unused items.}
+- Explanation of page fault rates and their significance in assessing memory performance.}
+- Definition of a page fault and its implications for memory management.}
+      
+[11:05](https://www.youtube.com/watch?v=7eL1mVRBvtE&list=PLJbyYK99gf2X2tkRPsck0Ar8RVVuHnDLp&index=82&t=665.589) This section discusses the concept of page fault rates and their impact on effective memory access times in operating systems, emphasizing the significant difference between nanoseconds and milliseconds in this context.
+  - Introduction to page fault rates and their significance in memory management.}
+- Explanation of the time taken for page replacement, highlighting the difference between nanoseconds and milliseconds.}
+- Calculation of effective access time considering the probability of page faults and the associated delays.}
+- Conclusion emphasizing the slow but reliable nature of the discussed memory access process.}
+      

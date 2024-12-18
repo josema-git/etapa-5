@@ -23,9 +23,9 @@
    Abri el archivo `kernel/sys.c` y agregue el siguiente codigo:
 
    ```c
-   #define MAX_DEST_BUFFER_LENGTH 256
-    #define MAX_NUMBER 10000
-    #define MAX_USERNAME_LENGTH 50 // Definir un límite para el username
+   #define MAX_DEST_BUFFER_LENGTH 2048
+    #define MAX_NUMBER 2000000
+    #define MAX_USERNAME_LENGTH 100 // Definir un límite para el username
 
     SYSCALL_DEFINE3(avanzatech, int, number, char __user *, dest_buffer, char __user *, username)
     {
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
         return 1; // Falta de argumentos
     }
 
-    char dest_buffer[256]; // Buffer para la respuesta
+    char dest_buffer[2048]; // Buffer para la respuesta
 
     long result = syscall(SYS_avanzatech, atoi(argv[2]), dest_buffer, argv[1]); // llamada a la syscall
 
