@@ -1527,37 +1527,320 @@ Esta técnica combina las ventajas de la segmentación y la paginación para res
 6. **Segmentación combinada con paginación:**
    - Combina ambas técnicas para aprovechar sus ventajas y minimizar sus problemas.
 
-The video explains demand paging in virtual memory, detailing how pages are loaded only when needed, handling page faults, and optimizing performance through page replacement and access time calculations.
-Detailed Summary for [Sistemas Operativos, Memoria virtual 2 paginación por demanda](https://www.youtube.com/watch?v=7eL1mVRBvtE&list=PLJbyYK99gf2X2tkRPsck0Ar8RVVuHnDLp&index=82) by [Monica](https://monica.im)
+# **Memoria Virtual en Sistemas Operativos**
 
-  [00:00](https://www.youtube.com/watch?v=7eL1mVRBvtE&list=PLJbyYK99gf2X2tkRPsck0Ar8RVVuHnDLp&index=82&t=0.359) This section discusses the concept of demand paging in virtual memory systems, emphasizing how it optimizes memory usage by only loading necessary pages into memory as needed.
-  - Introduction to demand paging and its significance in memory management.}
-- Explanation of how pages are loaded into memory only when required, reducing unnecessary memory usage.}
-- Benefits of demand paging, including faster response times and the ability to support more processes in shared environments.}
-- Details on how page tables function, including the presence bit indicating whether a page is currently in memory.}
-- Description of what happens during address translation when a page fault occurs, necessitating the loading of a page into memory.}
-      
-[02:44](https://www.youtube.com/watch?v=7eL1mVRBvtE&list=PLJbyYK99gf2X2tkRPsck0Ar8RVVuHnDLp&index=82&t=164.7) This section explains the concept of demand paging in operating systems, detailing what happens when a page fault occurs and how the system handles it to retrieve the necessary data from secondary storage into main memory.
-  - Introduction to page faults and their occurrence when accessing a page not present in main memory.}
-- Explanation of the exception triggered by a page fault and the system's response to handle it.}
-- The process of bringing the required page into main memory and updating the page table accordingly.}
-- Discussion on scenarios when all memory frames are occupied and the need for page replacement.}
-      
-[05:32](https://www.youtube.com/watch?v=7eL1mVRBvtE&list=PLJbyYK99gf2X2tkRPsck0Ar8RVVuHnDLp&index=82&t=332.54) The section explains the process of page replacement in virtual memory management, detailing how pages are swapped between primary and secondary memory to optimize memory usage.
-  - Introduction to the need for page replacement when memory is full.}
-- Explanation of how to identify an unused page in memory for replacement.}
-- Description of the page replacement process, including the transfer of pages between primary and secondary memory.}
-- Discussion on the impact of frequent page swapping on system performance due to slower access times in secondary memory.}
-      
-[08:19](https://www.youtube.com/watch?v=7eL1mVRBvtE&list=PLJbyYK99gf2X2tkRPsck0Ar8RVVuHnDLp&index=82&t=499.6) The video discusses virtual memory management, specifically focusing on demand paging and page replacement strategies. It uses an analogy of organizing a closet to explain how less frequently used pages are removed from memory to make space for active ones.
-  - Introduction to the concept of page replacement in memory management.}
-- An analogy comparing memory management to organizing a closet, emphasizing the removal of unused items.}
-- Explanation of page fault rates and their significance in assessing memory performance.}
-- Definition of a page fault and its implications for memory management.}
-      
-[11:05](https://www.youtube.com/watch?v=7eL1mVRBvtE&list=PLJbyYK99gf2X2tkRPsck0Ar8RVVuHnDLp&index=82&t=665.589) This section discusses the concept of page fault rates and their impact on effective memory access times in operating systems, emphasizing the significant difference between nanoseconds and milliseconds in this context.
-  - Introduction to page fault rates and their significance in memory management.}
-- Explanation of the time taken for page replacement, highlighting the difference between nanoseconds and milliseconds.}
-- Calculation of effective access time considering the probability of page faults and the associated delays.}
-- Conclusion emphasizing the slow but reliable nature of the discussed memory access process.}
+La **memoria virtual** es una técnica esencial en los sistemas operativos modernos que permite a los programas usar más memoria de la que físicamente está disponible en el sistema. Este documento explica los conceptos clave de la memoria virtual, incluyendo paginación, reemplazo de páginas, políticas de asignación de marcos y problemas como la hiper-paginación. También se presentan estrategias para optimizar el uso de la memoria y reducir costos computacionales.
+
+---
+
+## **1. Introducción a la Memoria Virtual**
+
+### **¿Qué es la memoria virtual?**
+La memoria virtual es un mecanismo que separa el espacio de direcciones lógicas (usado por los programas) del espacio de direcciones físicas (en la RAM). Esto permite:
+- Ejecutar programas sin cargar todo su contenido en memoria física.
+- Utilizar el almacenamiento secundario (disco) como extensión de la memoria principal.
+
+### **Estructura de la memoria virtual:**
+1. **Páginas y marcos:**
+   - La memoria lógica se divide en **páginas**.
+   - La memoria física se divide en **marcos** (del mismo tamaño que las páginas).
+2. **Tabla de páginas:**
+   - Mapea las páginas lógicas a los marcos físicos.
+   - Incluye bits de presencia para indicar si una página está en memoria y bits modificados para marcar cambios.
+
+### **Ventajas:**
+- Permite ejecutar programas más grandes que la memoria física.
+- Optimiza el uso de memoria al cargar solo las partes necesarias del programa.
+
+---
+
+## **2. Paginación por Demanda**
+
+### **¿Cómo funciona?**
+- Las páginas de un proceso se cargan en memoria solo cuando son necesarias.
+- Si una página no está en memoria, ocurre un **fallo de página**:
+  1. El sistema operativo busca la página en el disco.
+  2. Si no hay espacio en memoria, se selecciona una página para ser reemplazada.
+  3. La tabla de páginas se actualiza para reflejar los cambios.
+
+### **Selección de páginas para reemplazo:**
+- Se utilizan algoritmos de reemplazo para decidir qué página sacar de memoria (ver sección 3).
+
+### **Ejemplo:**
+Un proceso con 6 páginas puede tener solo 3 en memoria física. Si se necesita acceder a una página no presente, el sistema debe liberar un marco para cargar la nueva página.
+
+---
+
+## **3. Algoritmos de Reemplazo de Páginas**
+
+Cuando la memoria está llena, el sistema operativo debe elegir qué página reemplazar. Los algoritmos más comunes incluyen:
+
+### **3.1. FIFO (First In, First Out):**
+- La página que llegó primero es la que se reemplaza.
+- **Ventaja:** Fácil de implementar.
+- **Desventaja:** Puede causar la **anomalía de Belady**, donde aumentar los marcos disponibles incrementa los fallos de página.
+
+### **3.2. LRU (Least Recently Used):**
+- Reemplaza la página que no ha sido usada durante más tiempo.
+- **Ventaja:** Se aproxima al comportamiento óptimo.
+- **Desventaja:** Requiere hardware o estructuras adicionales para rastrear el uso.
+
+### **3.3. Optimal:**
+- Reemplaza la página que no será usada en el futuro más cercano.
+- **Ventaja:** Minimiza los fallos de página.
+- **Desventaja:** Imposible de implementar en tiempo real porque requiere conocer el futuro.
+
+### **3.4. Algoritmo Clock:**
+- Organiza las páginas en un círculo y utiliza un bit de uso para decidir qué página reemplazar.
+- **Ventaja:** Eficiente y simple.
+- **Desventaja:** No siempre es tan preciso como LRU.
+
+---
+
+## **4. Políticas de Asignación de Marcos**
+
+Los marcos disponibles deben asignarse a los procesos de manera eficiente. Existen dos enfoques principales:
+
+### **4.1. Asignación fija:**
+- Cada proceso recibe un número fijo de marcos.
+- Puede ser:
+  - **Equitativa:** Todos los procesos reciben la misma cantidad de marcos.
+  - **Proporcional:** Los marcos se asignan según el tamaño de los procesos.
+
+### **4.2. Asignación basada en prioridad:**
+- Los procesos con mayor prioridad reciben más marcos.
+- En caso de fallo de página, los marcos pueden ser tomados de procesos de menor prioridad (reemplazo global).
+
+### **4.3. Estrategias de reemplazo:**
+- **Reemplazo global:** Permite tomar marcos de cualquier proceso.
+- **Reemplazo local:** Solo reemplaza marcos dentro del proceso que causó el fallo de página.
+
+---
+
+## **5. Hiper-paginación (Thrashing)**
+
+### **¿Qué es?**
+Ocurre cuando un sistema pasa más tiempo manejando fallos de página que ejecutando procesos, lo que reduce drásticamente la utilización de la CPU.
+
+### **Causas:**
+- La suma de las localidades de los procesos activos excede la memoria física disponible.
+- Los procesos generan demasiados fallos de página debido a una asignación insuficiente de marcos.
+
+### **Soluciones:**
+1. **Modelo de conjunto de trabajo (Working Set):**
+   - Monitorea las páginas usadas recientemente por un proceso.
+   - Asigna marcos suficientes para cubrir el conjunto de trabajo.
+2. **Suspensión de procesos:**
+   - Reduce el nivel de multiprogramación suspendiendo procesos para liberar memoria.
+
+---
+
+## **6. Consideraciones en el Diseño de Memoria Virtual**
+
+### **Tamaño de página:**
+- **Páginas pequeñas:**
+  - Ventaja: Menor fragmentación interna.
+  - Desventaja: Requieren más entradas en la tabla de páginas.
+- **Páginas grandes:**
+  - Ventaja: Menor tamaño de la tabla de páginas.
+  - Desventaja: Mayor fragmentación interna.
+
+### **Segmentación por demanda:**
+- Técnica que combina segmentación y paginación.
+- Utilizada en sistemas con recursos limitados, como OS/2.
+- **Ventaja:** Permite una gestión más flexible de la memoria.
+- **Desventaja:** Mayor complejidad en la implementación.
+
+---
+
+## **7. Comparación de Algoritmos de Reemplazo**
+
+| **Algoritmo**       | **Ventaja**                                     | **Desventaja**                                  |
+|----------------------|------------------------------------------------|------------------------------------------------|
+| **FIFO**            | Fácil de implementar.                          | Anomalía de Belady.                            |
+| **LRU**             | Se aproxima al óptimo.                         | Costoso en términos de hardware.              |
+| **Optimal**         | Minimiza fallos de página.                     | Imposible de implementar en tiempo real.       |
+| **Clock**           | Eficiente y simple.                            | Menos preciso que LRU.                        |
+
+---
+
+## **8. Resumen de Conceptos Clave**
+
+1. **Memoria virtual:** Permite ejecutar programas más grandes que la memoria física.
+2. **Fallo de página:** Ocurre cuando una página requerida no está en memoria.
+3. **Algoritmos de reemplazo:** FIFO, LRU, Optimal y Clock son los más comunes.
+4. **Asignación de marcos:** Puede ser fija, proporcional o basada en prioridad.
+5. **Hiper-paginación:** Se mitiga con el modelo de conjunto de trabajo o suspendiendo procesos.
+6. **Tamaño de página:** Afecta la fragmentación y el tamaño de la tabla de páginas.
+
+---
+
+# **Sistemas de Archivos en Sistemas Operativos**
+
+Los **sistemas de archivos** son un componente esencial de los sistemas operativos, diseñados para gestionar de manera eficiente los dispositivos de almacenamiento y las operaciones con archivos. Este documento resume conceptos clave como la estructura, funciones, tipos de sistemas de archivos, particiones, bloques, nodos y operaciones. Además, se abordan temas avanzados como mapas de bits, arquitectura del sistema de archivos y manejo de directorios.
+
+---
+
+## **1. Introducción a los Sistemas de Archivos**
+
+### **¿Qué es un sistema de archivos?**
+Un sistema de archivos es una capa del sistema operativo que organiza, almacena y gestiona datos en dispositivos de almacenamiento como discos duros, SSD, USBs y más. Sin un sistema de archivos, sería casi imposible localizar o gestionar datos en un dispositivo.
+
+### **Funciones principales:**
+1. **Gestión del espacio:** Asignar y liberar espacio en el almacenamiento.
+2. **Control de acceso:** Gestionar permisos para leer, escribir o ejecutar archivos.
+3. **Estructuración:** Organizar datos en una jerarquía de directorios y archivos.
+4. **Compatibilidad:** Facilitar la interoperabilidad entre dispositivos y sistemas operativos.
+
+### **Problemas comunes:**
+- Restricciones de tamaño de archivo (por ejemplo, el límite de 4 GB en FAT32).
+- Compatibilidad entre sistemas de archivos y dispositivos (ejemplo: USBs formateados en FAT32 o NTFS).
+
+---
+
+## **2. Tipos de Sistemas de Archivos**
+
+### **2.1. FAT (File Allocation Table):**
+- **FAT12, FAT16, FAT32:** Diseñados para sistemas MS-DOS y Windows antiguos.
+- **Límite de tamaño:** FAT32 admite archivos de hasta 4 GB.
+- **Uso actual:** USBs y dispositivos compatibles con múltiples sistemas operativos.
+
+### **2.2. exFAT:**
+- Diseñado para superar las limitaciones de FAT32.
+- Admite archivos más grandes y es ideal para dispositivos de almacenamiento mayores de 32 GB.
+
+### **2.3. NTFS (New Technology File System):**
+- **Características avanzadas:** Permisos de acceso, compresión de archivos, y soporte para archivos grandes.
+- **Uso:** Principalmente en sistemas Windows modernos.
+
+### **2.4. EXT (Extended File System):**
+- **EXT3 y EXT4:** Usados en Linux.
+- **Journaling:** Garantiza la integridad del sistema en caso de fallos.
+- **Ventajas:** Mayor velocidad y soporte para grandes volúmenes.
+
+### **2.5. Sistemas de archivos ópticos:**
+- **ISO 9660 y UDF:** Usados en CDs, DVDs y Blu-rays.
+- **Declive:** Su uso ha disminuido debido a la popularidad de USBs y almacenamiento en la nube.
+
+---
+
+## **3. Estructura Física de los Discos**
+
+### **Componentes clave:**
+1. **Cilindros, superficies y sectores:**
+   - Los datos se almacenan en pistas circulares divididas en sectores.
+   - **Cilindro:** Conjunto de pistas alineadas verticalmente en un disco.
+2. **Fragmentación:**
+   - **Fragmentación interna:** Espacio desperdiciado dentro de un bloque.
+   - **Fragmentación externa:** Espacio libre no contiguo.
+
+### **Optimización:**
+- **Intercalado:** Reorganiza sectores para mejorar el rendimiento.
+- **Desfragmentación:** Reorganiza archivos fragmentados para acelerar el acceso.
+
+---
+
+## **4. Particiones y Formateo**
+
+### **¿Qué son las particiones?**
+- Dividen un disco físico en múltiples unidades lógicas, cada una con su propio sistema de archivos.
+- **Master Boot Record (MBR):** Contiene información sobre las particiones y el código de arranque.
+
+### **Tipos de particiones:**
+1. **Primarias:** Hasta 4 particiones principales.
+2. **Extendidas:** Permiten crear particiones lógicas adicionales dentro de ellas.
+
+### **Formateo:**
+1. **Formato de bajo nivel:** Realizado por el fabricante para definir sectores físicos.
+2. **Formato de alto nivel:** Crea un sistema de archivos en una partición.
+
+---
+
+## **5. Bloques y Mapas de Bits**
+
+### **Bloques:**
+- Unidad mínima de almacenamiento en un sistema de archivos.
+- **Ventajas de bloques grandes:**
+  - Menos fragmentación externa.
+  - Menor tamaño de mapas de bits.
+- **Desventajas:** Mayor desperdicio de espacio para archivos pequeños.
+
+### **Mapas de bits:**
+- Usados para rastrear bloques y nodos disponibles.
+- **Funcionamiento:**
+  - Un bit indica si un bloque está ocupado (1) o libre (0).
+  - Se actualizan al crear o eliminar archivos.
+
+---
+
+## **6. Nodos i (Inodes)**
+
+### **¿Qué son los nodos i?**
+- Estructuras que almacenan metadatos de un archivo, como:
+  - Tamaño.
+  - Fechas de creación y modificación.
+  - Permisos.
+  - Punteros a bloques de datos.
+
+### **Punteros:**
+1. **Directos:** Apuntan directamente a bloques de datos.
+2. **Indirectos:** Apuntan a bloques que contienen más punteros.
+3. **Doble indirectos:** Aumentan la capacidad de almacenamiento.
+
+---
+
+## **7. Operaciones con Archivos**
+
+### **Operaciones básicas:**
+1. **Crear:** Asignar un nodo i y bloques para el archivo.
+2. **Abrir:** Localizar el archivo y cargar su información en memoria.
+3. **Leer/Escribir:** Acceder y modificar datos en bloques.
+4. **Cerrar:** Liberar recursos asociados al archivo.
+
+### **Tablas de archivos abiertos:**
+- Contienen información de archivos actualmente abiertos.
+- Usan descriptores de archivo para identificar cada archivo.
+
+---
+
+## **8. Directorios**
+
+### **¿Qué es un directorio?**
+- Tabla que organiza archivos y subdirectorios.
+- **Raíz:** Primer directorio de un sistema de archivos.
+
+### **Operaciones con directorios:**
+1. **Abrir:** Cargar la tabla del directorio en memoria.
+2. **Leer:** Listar archivos y subdirectorios.
+3. **Cerrar:** Liberar recursos asociados al directorio.
+
+---
+
+## **9. Arquitectura del Sistema de Archivos**
+
+### **Capas:**
+1. **Hardware:** Maneja sectores y bloques físicos.
+2. **Gestión de bloques:** Asigna y libera bloques.
+3. **Gestión de nodos:** Controla metadatos de archivos.
+4. **Operaciones de alto nivel:** Interfaz para crear, leer y modificar archivos.
+
+### **Funciones necesarias:**
+- Leer/escribir sectores.
+- Gestionar mapas de bits.
+- Manejar nodos y bloques.
+- Operaciones con archivos y directorios.
+
+---
+
+## **10. Resumen de Conceptos Clave**
+
+1. **Sistemas de archivos:** Organizan y gestionan datos en dispositivos de almacenamiento.
+2. **Tipos:** FAT, NTFS, EXT, exFAT, ISO 9660, entre otros.
+3. **Particiones:** Dividen discos en unidades lógicas.
+4. **Bloques y nodos i:** Fundamentales para almacenar datos y metadatos.
+5. **Operaciones:** Crear, abrir, leer, escribir y cerrar archivos.
+6. **Directorios:** Organizan la jerarquía de archivos.
+7. **Arquitectura:** Desde hardware hasta operaciones de usuario.
+
+
       
